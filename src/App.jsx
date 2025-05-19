@@ -34,10 +34,11 @@ function App() {
       <p>Liquid chain height: <a href={`${url}/block/${hash}`} target="_blank">{height}</a></p>
       <p>Simplicity BIP-9 deployment: </p>
       <p>Active: {simplicity.active.toString()}</p>
-      <p>Status: {simplicity.bip9.status}</p>
-      <p>Period: {stats.period}</p>
-      <p>Elapsed: {stats.elapsed}</p>
-      <p>Count: {stats.count}</p>
+      <p>Status: {bip9.status}</p>
+      <p>Period: {stats.period} blocks</p>
+      <p>Period started: {bip9.since}</p>
+      <p>Elapsed: {stats.elapsed} blocks</p>
+      <p>Count: {stats.count} blocks</p>
       <p>Threshold: {stats.threshold}</p>
       <p>Possible in this period: {stats.possible.toString()}</p>
       <p>Last {blocks.length} blocks</p>
