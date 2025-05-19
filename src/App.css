@@ -1,0 +1,21 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.block {
+  display:inline-block;
+  font-family: monospace;
+  border: 1px #aaa dotted;
+  color: #aaa;
+  margin:1px;
+  font-size: 1.5rem;
+}
+
+.active {
+  border: 1px #00C3FF solid;
+  color: #00C3FF;
+  font-weight: bold;
+}

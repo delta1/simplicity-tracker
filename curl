@@ -1,0 +1,5 @@
+curl https://blockstream.info/liquid/api/blocks/tip
+curl https://blockstream.info/liquid/api/blocks/tip/height
+curl https://blockstream.info/liquid/api/blocks/tip/hash
+curl https://blockstream.info/liquid/api/blocks
+curl https://blockstream.info/liquid/api/blocks/3376750
