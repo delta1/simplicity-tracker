@@ -1,11 +1,10 @@
 {
-  "name": "temp",
-  "private": true,
-  "version": "0.0.0",
+  "name": "simplicity-tracker",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --outDir docs",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
