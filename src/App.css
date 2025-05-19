@@ -6,16 +6,31 @@
 }
 
 .block {
-  display:inline-block;
+  display: inline-block;
   font-family: monospace;
   border: 1px #aaa dotted;
   color: #aaa;
-  margin:1px;
+  margin: 1px;
   font-size: 1.5rem;
 }
 
 .active {
-  border: 1px #00C3FF solid;
-  color: #00C3FF;
+  border: 1px #00c3ff solid;
+  color: #00c3ff;
   font-weight: bold;
+}
+
+.card {
+  display: inline-block;
+  border: 1px #aaa dotted;
+  width: 100px;
+  margin: 2px;
+}
+
+.card-title {
+  color:#ccc;
+}
+
+.card-value {
+  color:#00c3ff;
 }

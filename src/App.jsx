@@ -19,6 +19,13 @@ function Blocks({ blocks }) {
   return blocks.map((block) => <Block key={block.hash} block={block}></Block>);
 }
 
+function Card({title, value}) {
+  return <div className="card">
+    <p class="card-title">{title}</p>
+    <p class="card-value">{value}</p>
+  </div>
+}
+
 function App() {
   const blocks = Object.values(blockdata.blocks).reverse().slice(0, 1500)
   console.log(blockdata)
@@ -33,14 +40,15 @@ function App() {
       <h1>SIMPLICITY Signalling Tracker</h1>
       <p>Liquid chain height: <a href={`${url}/block/${hash}`} target="_blank">{height}</a></p>
       <p>Simplicity BIP-9 deployment: </p>
-      <p>Active: {simplicity.active.toString()}</p>
-      <p>Status: {bip9.status}</p>
-      <p>Period: {stats.period} blocks</p>
-      <p>Period started: {bip9.since}</p>
-      <p>Elapsed: {stats.elapsed} blocks</p>
-      <p>Count: {stats.count} blocks</p>
-      <p>Threshold: {stats.threshold}</p>
-      <p>Possible in this period: {stats.possible.toString()}</p>
+      <Card title="Active" value={simplicity.active.toString()}></Card>
+      <Card title="Status" value={bip9.status}></Card>
+      <Card title="Period" value={stats.period}></Card>
+      <Card title="Since" value={bip9.since}></Card>
+      <Card title="Elapsed" value={stats.elapsed}></Card>
+      <Card title="Count" value={stats.count}></Card>
+      <Card title="Threshold" value={stats.threshold}></Card>
+      <Card title="Possible" value={stats.possible.toString()}></Card>
+
       <p>Last {blocks.length} blocks</p>
       <Blocks blocks={blocks}></Blocks>
     </div>
