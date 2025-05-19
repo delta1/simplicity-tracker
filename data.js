@@ -24,7 +24,7 @@ async function process(start_height) {
 }
 
 async function go() {
-  let data = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+  let data = JSON.parse(fs.readFileSync('src/assets/data.json', 'utf8'));
   let keys = Object.keys(data.blocks)
   let last_tip = parseInt(keys[keys.length - 1])
   console.log('last tip', last_tip, typeof (last_tip))
@@ -51,7 +51,7 @@ async function go() {
     if (data.blocks[i]) delete data.blocks[i]
   }
   console.log('write')
-  fs.writeFileSync('data.json', JSON.stringify(data), 'utf8')
+  fs.writeFileSync('src/assets/data.json', JSON.stringify(data), 'utf8')
   console.log('done', Object.keys(data.blocks).length)
 }
 
