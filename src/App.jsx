@@ -1,11 +1,9 @@
-import { useState } from "react";
 import "./App.css";
 import blockdata from "./assets/data.json";
-console.log(blockdata)
 
 function Block({ block }) {
   let extra = {
-    false: { cls: "inactive", icon: "x" },
+    false: { cls: "inactive", icon: "." },
     true: { cls: "active", icon: "✓" },
   };
   const url = `https://blockstream.info/liquid/block/${block.hash}`
@@ -22,6 +20,7 @@ function Blocks({ blocks }) {
 
 function App() {
   const blocks = Object.values(blockdata.blocks).reverse().slice(0, 1500)
+
   return (
     <div>
       <h1>SIMPLICITY Signalling Tracker</h1>
