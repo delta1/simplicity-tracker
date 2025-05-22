@@ -1,36 +1,61 @@
 #root {
-  max-width: 1110px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  font-size:1.5rem;
+}
+
+h1, h2 {
+  text-transform: uppercase;
+}
+
+h1 {
+  color: #6C8ADD;
 }
 
 .block {
   display: inline-block;
   font-family: monospace;
-  border: 1px #aaa dotted;
-  color: #aaa;
+  border: 1px #ccc dotted;
+  color: #ccc;
   margin: 1px;
-  font-size: 1.5rem;
+  font-size: 1.0rem;
+}
+
+.block p.height {
+  margin:10px;
+  padding:0;
+}
+
+.block p.version {
+  margin:0;
+  padding:0;
+  font-size: 0.8rem;
 }
 
 .active {
-  border: 1px #00c3ff solid;
-  color: #00c3ff;
+  border: 1px #6C8ADD solid;
+  color: #6C8ADD;
   font-weight: bold;
+}
+.active:hover {
+  color: #00C3FF;
+  border: 1px #00C3FF solid;
 }
 
 .card {
   display: inline-block;
-  border: 1px #aaa dotted;
-  width: 100px;
+  border: 1px #fff dotted;
+  width: 134px;
   margin: 2px;
 }
 
 .card-title {
-  color:#ccc;
+  color:#fff;
 }
 
 .card-value {
-  color:#00c3ff;
+  color:#6C8ADD;
+  font-weight: bold;
 }

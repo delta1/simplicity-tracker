@@ -1,11 +1,10 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: monospace;
   line-height: 1.5;
-  font-weight: 400;
+  font-weight: 500;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #fff;
+  background-color: #111316;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,8 +13,8 @@
 }
 
 a {
-  font-weight: 500;
-  color: #00c3ff;
+  font-weight: bold;
+  color: #6C8ADD;
   text-decoration: inherit;
 }
 a:hover {
@@ -50,17 +49,4 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #00c3ff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }

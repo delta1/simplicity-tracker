@@ -18,8 +18,8 @@ function Block({ block }) {
       title={title}
       className={"block " + extra[active].cls}
     >
-      {block.height}
-      {/* {extra[active].icon} */}
+      <p className="height">{block.height}</p>
+      {/* <p className="version">0x{block.versionhex}</p> */}
     </a>
   );
 }
@@ -28,10 +28,12 @@ function Blocks({ blocks }) {
   return blocks.map((block) => <Block key={block.hash} block={block}></Block>);
 }
 
-function Card({ title, value }) {
+function Card({ title, value, info }) {
   return (
     <div className="card">
-      <p className="card-title">{title}</p>
+      <p className="card-title" title={info}>
+        {title}
+      </p>
       <p className="card-value">{value}</p>
     </div>
   );
@@ -64,67 +66,130 @@ async function fetchBlocks(start) {
   return processBlocks(blocks);
 }
 
-async function checkHeight(last, blocks, setBlocks) {
-  console.log("check for newer tip than", last);
+function getTip(blocks) {
+  const keys = Object.keys(blocks);
+  const height = keys[keys.length - 1];
+  const hash = blocks[height].hash;
+  return { height, hash };
+}
+
+async function checkHeight(blocks, setBlocks) {
+  const { height } = getTip(blocks);
+  console.log("check for newer tip than", height);
   const response = await fetch(
     "https://blockstream.info/liquid/api/blocks/tip/height"
   );
-  const tip = await response.json();
-  const behind = tip - last;
+  const newTip = await response.json();
+  const behind = newTip - height;
   if (behind > 0) {
     console.log("behind", behind);
-    const newBlocks = await fetchBlocks(start);
+    let newBlocks = {};
+    for (let start = newTip; start > height; start -= 10) {
+      newBlocks = { ...newBlocks, ...(await fetchBlocks(start)) };
+    }
     setBlocks({ ...blocks, ...newBlocks });
   } else {
-    console.log("no update needed");
+    console.log("tip is current");
   }
 }
 
 function App() {
-  const [deploymentInfo, setDeploymentInfo] = useState(blockdata.deployments);
   const [blocks, setBlocks] = useState(blockdata.blocks);
-  const showBlocks = Object.values(blocks).reverse().slice(0, 1500);
-  const keys = Object.keys(blocks);
-  const height = keys[keys.length - 1];
-  const hash = blocks[height].hash;
+  const showBlocks = Object.values(blocks).reverse().slice(0, 300);
+  const { height, hash } = getTip(blocks);
 
-  const { deployments } = deploymentInfo;
+  const { deployments } = blockdata.deployments;
   const { simplicity } = deployments;
   const { bip9 } = simplicity;
   const stats = bip9.statistics;
 
-  // useEffect(() => {
-  //   const interval = setInterval(
-  //     () => checkHeight(height, showBlocks, setBlocks),
-  //     60000
-  //   );
-  //   return () => clearInterval(interval);
-  // }, []);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("interval check height");
+      checkHeight(blocks, setBlocks);
+    }, 60000);
+    console.log("init check height");
+    checkHeight(blocks, setBlocks);
+    return () => clearInterval(interval);
+  }, [blocks]);
 
   return (
     <div>
-      <h1>SIMPLICITY Signalling Tracker</h1>
-      <a href="#" onClick={(e) => checkHeight(height, blocks, setBlocks)}>
-        check height
-      </a>
+      <h1>Simplicity</h1>
       <p>
-        Liquid chain height:{" "}
+        <a href="https://blockstream.com/simplicity.pdf" target="_blank">
+          Simplicity
+        </a>{" "}
+        is a typed, combinator-based, functional language without loops or
+        recursion. It is formally verified, and can be statically analyzed with
+        upper bounds on computation resources prior to execution. Simplicity has
+        the desirable property of being Turing incomplete, but can express any
+        finitary function.{" "}
+        <strong>
+          Simplicity is the next generation in smart contract scripting.
+        </strong>
+      </p>
+      <h2>BIP-9 signalling on The Liquid Network</h2>
+      <p>
+        Chain height:{" "}
         <a href={`${url}/block/${hash}`} target="_blank">
           {height}
         </a>
       </p>
-      <p>Simplicity BIP-9 deployment: </p>
-      <Card title="Active" value={simplicity.active.toString()}></Card>
-      <Card title="Status" value={bip9.status}></Card>
-      <Card title="Period" value={stats.period}></Card>
-      <Card title="Since" value={bip9.since}></Card>
-      <Card title="Elapsed" value={stats.elapsed}></Card>
-      <Card title="Count" value={stats.count}></Card>
-      <Card title="Threshold" value={stats.threshold}></Card>
-      <Card title="Possible" value={stats.possible.toString()}></Card>
+      <p>Simplicity BIP-9 deployment</p>
+      <Card
+        title="Active"
+        value={simplicity.active.toString()}
+        info="Is Simplicity active yet?"
+      ></Card>
+      <Card
+        title="Status"
+        value={bip9.status}
+        info="The BIP-9 status of the Simplicity deployment"
+      ></Card>
+      <Card
+        title="Period"
+        value={stats.period}
+        info="The number of blocks of each signalling period"
+      ></Card>
+      <Card
+        title="Since"
+        value={bip9.since}
+        info="The block height at which this period started"
+      ></Card>
+      <Card
+        title="Elapsed"
+        value={stats.elapsed}
+        info="How many blocks have elapsed in this period"
+      ></Card>
+      <Card
+        title="Count"
+        value={stats.count}
+        info="How many blocks have signalled in this period"
+      ></Card>
+      <Card
+        title="Threshold"
+        value={stats.threshold}
+        info="How many blocks are required to signal in the period"
+      ></Card>
+      <Card
+        title="Possible"
+        value={stats.possible.toString()}
+        info="Is it still possible to activate in this period?"
+      ></Card>
 
       <p>Last {showBlocks.length} blocks</p>
       <Blocks blocks={showBlocks}></Blocks>
+      <footer>
+        <p>
+          <a
+            href="https://github.com/delta1/simplicity-tracker"
+            target="_blank"
+          >
+            source code
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
