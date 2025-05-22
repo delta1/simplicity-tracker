@@ -103,13 +103,18 @@ function App() {
   const { bip9 } = simplicity;
   const stats = bip9.statistics;
 
+  // init
+  useEffect(() => {
+    console.log("init check height");
+    checkHeight(blocks, setBlocks);
+  }, []);
+
+  // interval
   useEffect(() => {
     const interval = setInterval(() => {
       console.log("interval check height");
       checkHeight(blocks, setBlocks);
     }, 60000);
-    console.log("init check height");
-    checkHeight(blocks, setBlocks);
     return () => clearInterval(interval);
   }, [blocks]);
 
