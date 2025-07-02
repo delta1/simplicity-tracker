@@ -11,7 +11,7 @@ h1, h2 {
 }
 
 h1 {
-  color: #6C8ADD;
+  color: #EA9606;
 }
 
 .block {
@@ -35,13 +35,13 @@ h1 {
 }
 
 .active {
-  border: 1px #6C8ADD solid;
-  color: #6C8ADD;
+  border: 1px #EA9606 solid;
+  color: #EA9606;
   font-weight: bold;
 }
 .active:hover {
-  color: #00C3FF;
-  border: 1px #00C3FF solid;
+  color: #FDC667;
+  border: 1px #FDC667 solid;
 }
 
 .card {
@@ -56,6 +56,6 @@ h1 {
 }
 
 .card-value {
-  color:#6C8ADD;
+  color:#EA9606;
   font-weight: bold;
 }
