@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import blockdata from "./assets/data.json";
-import Logo from "./Logo"
+import Logo from "./Logo";
 
 const url = "https://blockstream.info/liquid";
 
@@ -69,19 +69,20 @@ async function fetchBlocks(start) {
 
 function getTip(blocks) {
   const keys = Object.keys(blocks);
-  const height = keys[keys.length - 1];
+  const height = parseInt(keys[keys.length - 1]);
   const hash = blocks[height].hash;
   return { height, hash };
 }
 
-async function checkHeight(blocks, setBlocks) {
+async function checkHeight(blocks, setBlocks, setLoading) {
+  setLoading(true);
   const { height } = getTip(blocks);
   console.log("check for newer tip than", height);
   const response = await fetch(
     "https://blockstream.info/liquid/api/blocks/tip/height"
   );
   const newTip = await response.json();
-  const behind = newTip - height;
+  const behind = Math.min(newTip - height, 300);
   if (behind > 0) {
     console.log("behind", behind);
     let newBlocks = {};
@@ -92,10 +93,12 @@ async function checkHeight(blocks, setBlocks) {
   } else {
     console.log("tip is current");
   }
+  setLoading(false);
 }
 
 function App() {
   const [blocks, setBlocks] = useState(blockdata.blocks);
+  const [loading, setLoading] = useState(false);
   const showBlocks = Object.values(blocks).reverse().slice(0, 300);
   const { height, hash } = getTip(blocks);
 
@@ -104,20 +107,23 @@ function App() {
   const { bip9 } = simplicity;
   const stats = bip9.statistics;
 
+  let status = <p>Last {showBlocks.length} blocks</p>;
+  if (loading) status = <p>Loading latest blocks...</p>;
+
   // init
   useEffect(() => {
     console.log("init check height");
-    checkHeight(blocks, setBlocks);
-  }, []);
+    checkHeight(blocks, setBlocks, setLoading);
+  }, [loading]);
 
   // interval
   useEffect(() => {
     const interval = setInterval(() => {
       console.log("interval check height");
-      checkHeight(blocks, setBlocks);
+      checkHeight(blocks, setBlocks, setLoading);
     }, 60000);
     return () => clearInterval(interval);
-  }, [blocks]);
+  }, [blocks, loading]);
 
   return (
     <div>
@@ -184,7 +190,8 @@ function App() {
         info="Is it still possible to activate in this period?"
       ></Card>
 
-      <p>Last {showBlocks.length} blocks</p>
+      {status}
+
       <Blocks blocks={showBlocks}></Blocks>
       <footer>
         <p>
