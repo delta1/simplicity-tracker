@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import blockdata from "./assets/data.json";
+import Logo from "./Logo"
 
 const url = "https://blockstream.info/liquid";
 
@@ -120,7 +121,7 @@ function App() {
 
   return (
     <div>
-      <h1>Simplicity</h1>
+      <Logo />
       <p>
         <a href="https://blockstream.com/simplicity.pdf" target="_blank">
           Simplicity

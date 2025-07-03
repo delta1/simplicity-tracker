@@ -40,8 +40,8 @@ h1 {
   font-weight: bold;
 }
 .active:hover {
-  color: #FDC667;
-  border: 1px #FDC667 solid;
+  color: #FFD690;
+  border: 1px #FFD690 solid;
 }
 
 .card {
@@ -58,4 +58,8 @@ h1 {
 .card-value {
   color:#EA9606;
   font-weight: bold;
+}
+
+.logo > svg {
+  max-height: 180px;
 }
