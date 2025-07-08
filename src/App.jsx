@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import blockdata from "./assets/data.json";
 import Logo from "./Logo";
+import Loading from "./Loading";
 
 const url = "https://blockstream.info/liquid";
+const NUM_TO_SHOW = 300;
 
 function Block({ block }) {
   let extra = {
@@ -20,7 +22,6 @@ function Block({ block }) {
       className={"block " + extra[active].cls}
     >
       <p className="height">{block.height}</p>
-      {/* <p className="version">0x{block.versionhex}</p> */}
     </a>
   );
 }
@@ -75,31 +76,31 @@ function getTip(blocks) {
 }
 
 async function checkHeight(blocks, setBlocks, setLoading) {
-  setLoading(true);
+  setLoading(true)
   const { height } = getTip(blocks);
   console.log("check for newer tip than", height);
   const response = await fetch(
     "https://blockstream.info/liquid/api/blocks/tip/height"
   );
   const newTip = await response.json();
-  const behind = Math.min(newTip - height, 300);
+  const behind = Math.min(newTip - height, NUM_TO_SHOW);
   if (behind > 0) {
     console.log("behind", behind);
     let newBlocks = {};
-    for (let start = newTip; start > height; start -= 10) {
+    for (let start = newTip; start > newTip - behind; start -= 10) {
       newBlocks = { ...newBlocks, ...(await fetchBlocks(start)) };
     }
     setBlocks({ ...blocks, ...newBlocks });
   } else {
     console.log("tip is current");
   }
-  setLoading(false);
+  setLoading(false)
 }
 
 function App() {
   const [blocks, setBlocks] = useState(blockdata.blocks);
   const [loading, setLoading] = useState(false);
-  const showBlocks = Object.values(blocks).reverse().slice(0, 300);
+  const showBlocks = Object.values(blocks).reverse().slice(0, NUM_TO_SHOW);
   const { height, hash } = getTip(blocks);
 
   const { deployments } = blockdata.deployments;
@@ -114,7 +115,7 @@ function App() {
   useEffect(() => {
     console.log("init check height");
     checkHeight(blocks, setBlocks, setLoading);
-  }, [loading]);
+  }, []);
 
   // interval
   useEffect(() => {
@@ -123,7 +124,7 @@ function App() {
       checkHeight(blocks, setBlocks, setLoading);
     }, 60000);
     return () => clearInterval(interval);
-  }, [blocks, loading]);
+  }, [blocks]);
 
   return (
     <div>
@@ -190,7 +191,9 @@ function App() {
         info="Is it still possible to activate in this period?"
       ></Card>
 
-      {status}
+      <p>
+        Last {showBlocks.length} blocks <Loading size={32} show={loading} />
+      </p>
 
       <Blocks blocks={showBlocks}></Blocks>
       <footer>
