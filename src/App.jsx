@@ -168,7 +168,7 @@ function App() {
       <Card
         title="Since"
         value={bip9.since}
-        info="The block height at which this period started"
+        info="The block height at which this status started"
       ></Card>
       <Card
         title="Elapsed"

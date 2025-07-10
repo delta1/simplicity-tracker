@@ -61,5 +61,6 @@ h1 {
 }
 
 .logo > svg {
-  max-height: 180px;
+  max-height: 130px;
+  margin:40px 0;
 }
