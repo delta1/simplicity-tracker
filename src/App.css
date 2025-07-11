@@ -1,17 +1,18 @@
 #root {
-  max-width: 1120px;
+  max-width: 1183px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  font-size:1.5rem;
+  font-size: 1.5rem;
 }
 
-h1, h2 {
+h1,
+h2 {
   text-transform: uppercase;
 }
 
 h1 {
-  color: #EA9606;
+  color: #ea9606;
 }
 
 .block {
@@ -20,28 +21,28 @@ h1 {
   border: 1px #ccc dotted;
   color: #ccc;
   margin: 1px;
-  font-size: 1.0rem;
+  font-size: 1rem;
 }
 
 .block p.height {
-  margin:10px;
-  padding:0;
+  margin: 10px;
+  padding: 0;
 }
 
 .block p.version {
-  margin:0;
-  padding:0;
+  margin: 0;
+  padding: 0;
   font-size: 0.8rem;
 }
 
 .active {
-  border: 1px #EA9606 solid;
-  color: #EA9606;
+  border: 1px #ea9606 solid;
+  color: #ea9606;
   font-weight: bold;
 }
 .active:hover {
-  color: #FFD690;
-  border: 1px #FFD690 solid;
+  color: #ffd690;
+  border: 1px #ffd690 solid;
 }
 
 .card {
@@ -52,15 +53,15 @@ h1 {
 }
 
 .card-title {
-  color:#fff;
+  color: #fff;
 }
 
 .card-value {
-  color:#EA9606;
+  color: #ea9606;
   font-weight: bold;
 }
 
 .logo > svg {
   max-height: 130px;
-  margin:40px 0;
+  margin: 40px 0;
 }

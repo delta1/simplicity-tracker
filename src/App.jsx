@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import blockdata from "./assets/data.json";
 import Logo from "./Logo";
 import Loading from "./Loading";
 
 const url = "https://blockstream.info/liquid";
-const NUM_TO_SHOW = 300;
+const NUM_TO_SHOW = 150;
 
 function Block({ block }) {
   let extra = {
@@ -26,176 +25,217 @@ function Block({ block }) {
   );
 }
 
-function Blocks({ blocks }) {
-  return blocks.map((block) => <Block key={block.hash} block={block}></Block>);
+function Blocks({ blocks, loading }) {
+  return (
+    <div>
+      <p>Latest Blocks {<Loading size={24} show={loading} />}</p>
+      {blocks.map((block) => (
+        <Block key={block.hash} block={block} />
+      ))}
+    </div>
+  );
 }
 
 function Card({ title, value, info }) {
+  const loading = <Loading size={24} show={true} />;
   return (
     <div className="card">
       <p className="card-title" title={info}>
         {title}
       </p>
-      <p className="card-value">{value}</p>
+      <p className="card-value">
+        {value !== null ? value.toString() : loading}
+      </p>
     </div>
   );
 }
 
-function processBlocks(blocks) {
-  let processed = {};
-
-  for (const block of blocks) {
-    const versionhex = block.version.toString(16);
-    processed[block.height] = {
-      hash: block.id,
-      height: block.height,
-      version: block.version,
-      versionhex,
-      simplicity: versionhex === "20200000",
-    };
-  }
-
-  return processed;
+function processBlock(block) {
+  const versionhex = block.version.toString(16);
+  return {
+    hash: block.id,
+    height: parseInt(block.height),
+    version: block.version,
+    versionhex,
+    simplicity: versionhex === "20200000",
+  };
 }
 
-async function fetchBlocks(start) {
-  console.log("fetchblocks", start);
-  const response = await fetch(
-    `https://blockstream.info/liquid/api/blocks/${start}`
+function Intro() {
+  return (
+    <p>
+      <a href="https://blockstream.com/simplicity.pdf" target="_blank">
+        Simplicity
+      </a>{" "}
+      is a typed, combinator-based, functional language without loops or
+      recursion. It is formally specified, and can be statically analyzed with
+      upper bounds on computation resources prior to execution. Simplicity has
+      the desirable property of being Turing incomplete, but can express any
+      finitary function.{" "}
+      <strong>
+        Simplicity is the next generation in smart contract scripting.
+      </strong>
+    </p>
   );
-
-  const blocks = await response.json();
-  return processBlocks(blocks);
 }
 
-function getTip(blocks) {
-  const keys = Object.keys(blocks);
-  const height = parseInt(keys[keys.length - 1]);
-  const hash = blocks[height].hash;
-  return { height, hash };
-}
-
-async function checkHeight(blocks, setBlocks, setLoading) {
-  setLoading(true)
-  const { height } = getTip(blocks);
-  console.log("check for newer tip than", height);
-  const response = await fetch(
-    "https://blockstream.info/liquid/api/blocks/tip/height"
-  );
-  const newTip = await response.json();
-  const behind = Math.min(newTip - height, NUM_TO_SHOW);
-  if (behind > 0) {
-    console.log("behind", behind);
-    let newBlocks = {};
-    for (let start = newTip; start > newTip - behind; start -= 10) {
-      newBlocks = { ...newBlocks, ...(await fetchBlocks(start)) };
-    }
-    setBlocks({ ...blocks, ...newBlocks });
-  } else {
-    console.log("tip is current");
-  }
-  setLoading(false)
-}
-
-function App() {
-  const [blocks, setBlocks] = useState(blockdata.blocks);
-  const [loading, setLoading] = useState(false);
-  const showBlocks = Object.values(blocks).reverse().slice(0, NUM_TO_SHOW);
-  const { height, hash } = getTip(blocks);
-
-  const { deployments } = blockdata.deployments;
-  const { simplicity } = deployments;
-  const { bip9 } = simplicity;
-  const stats = bip9.statistics;
-
-  let status = <p>Last {showBlocks.length} blocks</p>;
-  if (loading) status = <p>Loading latest blocks...</p>;
-
-  // init
-  useEffect(() => {
-    console.log("init check height");
-    checkHeight(blocks, setBlocks, setLoading);
-  }, []);
-
-  // interval
-  useEffect(() => {
-    const interval = setInterval(() => {
-      console.log("interval check height");
-      checkHeight(blocks, setBlocks, setLoading);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [blocks]);
-
+function Bip9({ simplicity }) {
+  const {
+    active,
+    bip9: {
+      status,
+      since,
+      statistics: { period, elapsed, count, threshold, possible },
+    },
+  } = simplicity;
   return (
     <div>
-      <Logo />
-      <p>
-        <a href="https://blockstream.com/simplicity.pdf" target="_blank">
-          Simplicity
-        </a>{" "}
-        is a typed, combinator-based, functional language without loops or
-        recursion. It is formally specified, and can be statically analyzed with
-        upper bounds on computation resources prior to execution. Simplicity has
-        the desirable property of being Turing incomplete, but can express any
-        finitary function.{" "}
-        <strong>
-          Simplicity is the next generation in smart contract scripting.
-        </strong>
-      </p>
-      <h2>BIP-9 signalling on The Liquid Network</h2>
-      <p>
-        Chain height:{" "}
-        <a href={`${url}/block/${hash}`} target="_blank">
-          {height}
-        </a>
-      </p>
       <p>Simplicity BIP-9 deployment</p>
       <Card
         title="Active"
-        value={simplicity.active.toString()}
+        value={active}
         info="Is Simplicity active yet?"
       ></Card>
       <Card
         title="Status"
-        value={bip9.status}
+        value={status}
         info="The BIP-9 status of the Simplicity deployment"
       ></Card>
       <Card
         title="Period"
-        value={stats.period}
+        value={period}
         info="The number of blocks of each signalling period"
       ></Card>
       <Card
         title="Since"
-        value={bip9.since}
+        value={since}
         info="The block height at which this status started"
       ></Card>
       <Card
         title="Elapsed"
-        value={stats.elapsed}
+        value={elapsed}
         info="How many blocks have elapsed in this period"
       ></Card>
       <Card
         title="Count"
-        value={stats.count}
+        value={count}
         info="How many blocks have signalled in this period"
       ></Card>
       <Card
         title="Threshold"
-        value={stats.threshold}
+        value={threshold}
         info="How many blocks are required to signal in the period"
       ></Card>
       <Card
         title="Possible"
-        value={stats.possible.toString()}
+        value={possible}
         info="Is it still possible to activate in this period?"
       ></Card>
+    </div>
+  );
+}
 
-      <p>
-        Last {showBlocks.length} blocks <Loading size={32} show={loading} />
-      </p>
+function Height({ tip }) {
+  const { height, hash } = tip;
+  const link = (
+    <a href={`${url}/block/${hash}`} target="_blank">
+      {height}
+    </a>
+  );
+  return (
+    <p>
+      Chain height: {tip.height ? link : "       "}{" "}
+      <Loading size={24} show={!tip.height} />
+    </p>
+  );
+}
 
-      <Blocks blocks={showBlocks}></Blocks>
+function App() {
+  const [tip, setTip] = useState({ height: null, hash: null });
+  const [blocks, setBlocks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [simplicity, setSimplicity] = useState({
+    type: "bip9",
+    active: null,
+    bip9: {
+      bit: 21,
+      start_time: 3333333,
+      timeout: 9223372036854776000,
+      min_activation_height: 0,
+      status: "started",
+      since: 3336480,
+      status_next: "started",
+      statistics: {
+        period: 10080,
+        elapsed: null,
+        count: null,
+        threshold: 10080,
+        possible: null,
+      },
+    },
+  });
+
+  // init
+  useEffect(() => {
+    console.log("init");
+    setLoading(true);
+    // bip-9
+    fetch("/.netlify/functions/deployment")
+      .then((r) => r.json())
+      .then((data) => setSimplicity(data.simplicity))
+      .catch((e) => console.error("Error fetching deployment:", e));
+
+    // most recent 10 blocks
+    fetch("https://blockstream.info/liquid/api/blocks/tip")
+      .then((r) => r.json())
+      .then((b) => {
+        const height = b[0].height;
+        const hash = b[0].id;
+        setTip({ height, hash });
+        const initBlocks = [...blocks, ...b.map(processBlock)];
+        setBlocks(initBlocks);
+        return { height, initBlocks };
+      })
+      .then(({ height, initBlocks }) => {
+        //
+        let allBlocks = [...initBlocks];
+        for (
+          let start = height - 10;
+          start > height - NUM_TO_SHOW;
+          start -= 10
+        ) {
+          fetch(`https://blockstream.info/liquid/api/blocks/${start}`)
+            .then((r) => r.json())
+            .then((b) => {
+              allBlocks = [...allBlocks, ...b.map(processBlock)];
+              setBlocks(allBlocks);
+            })
+            .then(() => setLoading(false));
+        }
+      })
+      .catch((e) => {
+        console.error("Error fetching deployment:", e);
+        setLoading(false);
+      });
+  }, []);
+
+  // // interval
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     console.log("interval check height");
+  //     checkHeight(blocks, setBlocks, setLoading);
+  //   }, 60000);
+  //   return () => clearInterval(interval);
+  // }, [blocks]);
+
+  return (
+    <div>
+      <Logo />
+      <Intro />
+      <h2>BIP-9 signalling on The Liquid Network</h2>
+      <Height tip={tip} />
+      <Bip9 simplicity={simplicity} />
+      <Blocks tip={tip} blocks={blocks} loading={loading}></Blocks>
       <footer>
         <p>
           <a

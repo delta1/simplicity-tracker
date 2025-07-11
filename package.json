@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "netlify": "netlify dev",
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
@@ -10,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "netlify-cli": "^22.2.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
