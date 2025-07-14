@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import Logo from "./Logo";
 import Loading from "./Loading";
+import ErrorMessage from "./ErrorMessage";
+import CircularTimer from "./CircularTimer";
 
 const url = "https://blockstream.info/liquid";
-const NUM_TO_SHOW = 150;
+const NUM_TO_SHOW = 60;
+const UPDATE_SECS = 60;
 
 function Block({ block }) {
   let extra = {
@@ -25,13 +28,22 @@ function Block({ block }) {
   );
 }
 
-function Blocks({ blocks, loading }) {
+function Blocks({ blocks, loading, timer }) {
   return (
     <div>
-      <p>Latest Blocks {<Loading size={24} show={loading} />}</p>
-      {blocks.map((block) => (
-        <Block key={block.hash} block={block} />
-      ))}
+      <p>
+        Latest blocks{" "}
+        {loading ? (
+          <Loading size={24} show={loading} />
+        ) : (
+          <CircularTimer timer={timer} maxTime={60} size={22} />
+        )}
+      </p>
+      <div className="blocks">
+        {blocks.map((block) => (
+          <Block key={block.hash} block={block} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -48,6 +60,57 @@ function Card({ title, value, info }) {
       </p>
     </div>
   );
+}
+
+function keepUnique(blocks) {
+  return Array.from(
+    new Map(blocks.map((block) => [block.hash, block])).values()
+  ).sort((a, b) => b.height - a.height);
+}
+
+function blocksToTimeframe(blocks) {
+  if (blocks <= 0) return "now";
+
+  const futureDate = new Date("2025-07-31T02:38:57Z");
+  const now = new Date();
+  const diffMs = futureDate.getTime() - now.getTime();
+  const minutes = diffMs / (1000 * 60);
+  const hours = minutes / 60;
+  const days = hours / 24;
+  const weeks = days / 7;
+  const months = days / 30;
+  const years = days / 365;
+
+  if (minutes < 1) return "less than a minute";
+  if (minutes < 2) return "~ a minute";
+  if (minutes < 60) return `~ ${Math.floor(minutes)} minutes`;
+  if (hours < 2) return "~ an hour";
+  if (hours < 24) return `~ ${Math.floor(hours)} hours`;
+  if (days < 2) return "~ a day";
+  if (days < 14) return `~ ${Math.floor(days)} days`;
+  if (weeks < 2) return "~ a week";
+  if (weeks < 4) return `~ ${Math.floor(weeks)} weeks`;
+  if (months < 2) return "~ a month";
+  if (months < 12) return `~ ${Math.floor(months)} months`;
+  if (years < 2) return "~ a year";
+  return `~ ${Math.floor(years)} years`;
+}
+
+function blocksToDateTime(blocks) {
+  if (blocks <= 0) return "now";
+
+  const futureDate = new Date("2025-07-31T02:38:57Z");
+
+  const dateOptions = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  };
+
+  return futureDate.toLocaleString(undefined, dateOptions);
 }
 
 function processBlock(block) {
@@ -90,7 +153,9 @@ function Bip9({ simplicity }) {
   } = simplicity;
   return (
     <div>
-      <p>Simplicity BIP-9 deployment</p>
+      <p>
+        <strong>Simplicity BIP-9 deployment</strong>
+      </p>
       <Card
         title="Active"
         value={active}
@@ -102,34 +167,34 @@ function Bip9({ simplicity }) {
         info="The BIP-9 status of the Simplicity deployment"
       ></Card>
       <Card
-        title="Period"
-        value={period}
-        info="The number of blocks of each signalling period"
-      ></Card>
-      <Card
-        title="Since"
-        value={since}
-        info="The block height at which this status started"
-      ></Card>
-      <Card
-        title="Elapsed"
-        value={elapsed}
-        info="How many blocks have elapsed in this period"
-      ></Card>
-      <Card
         title="Count"
-        value={count}
+        value={count && count.toLocaleString()}
         info="How many blocks have signalled in this period"
       ></Card>
       <Card
+        title="Elapsed"
+        value={elapsed && elapsed.toLocaleString()}
+        info="How many blocks have elapsed in this period"
+      ></Card>
+      <Card
         title="Threshold"
-        value={threshold}
+        value={threshold && threshold.toLocaleString()}
         info="How many blocks are required to signal in the period"
+      ></Card>
+      <Card
+        title="Period"
+        value={period && period.toLocaleString()}
+        info="The number of blocks of each signalling period"
       ></Card>
       <Card
         title="Possible"
         value={possible}
         info="Is it still possible to activate in this period?"
+      ></Card>
+      <Card
+        title="Since"
+        value={since && since.toLocaleString()}
+        info="The block height at which this status started"
       ></Card>
     </div>
   );
@@ -137,22 +202,33 @@ function Bip9({ simplicity }) {
 
 function Height({ tip }) {
   const { height, hash } = tip;
+  const activation_height = 3_477_600;
+  const blocks = activation_height - tip.height;
   const link = (
     <a href={`${url}/block/${hash}`} target="_blank">
-      {height}
+      {height && height.toLocaleString()}
     </a>
   );
   return (
-    <p>
-      Chain height: {tip.height ? link : "       "}{" "}
-      <Loading size={24} show={!tip.height} />
-    </p>
+    <>
+      <p>
+        Liquid chain height: {tip.height ? link : ""}
+        <Loading size={24} show={!tip.height} />
+      </p>
+      <p>
+        Simplicity activation in <strong>{blocks.toLocaleString()}</strong>{" "}
+        blocks at height <strong>{activation_height.toLocaleString()}</strong>
+      </p>
+      <p>Expected: {blocksToDateTime(blocks)}</p>
+    </>
   );
 }
 
 function App() {
   const [tip, setTip] = useState({ height: null, hash: null });
   const [blocks, setBlocks] = useState([]);
+  const [timer, setTimer] = useState(UPDATE_SECS);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [simplicity, setSimplicity] = useState({
     type: "bip9",
@@ -160,7 +236,7 @@ function App() {
     bip9: {
       bit: 21,
       start_time: 3333333,
-      timeout: 9223372036854776000,
+      timeout: 9223372036854776000n,
       min_activation_height: 0,
       status: "started",
       since: 3336480,
@@ -175,67 +251,96 @@ function App() {
     },
   });
 
+  const blocksRef = useRef(blocks);
+
+  // Update ref when blocks change
+  useEffect(() => {
+    blocksRef.current = blocks;
+  }, [blocks]);
+
+  const doUpdate = async () => {
+    try {
+      console.log("updating");
+      setLoading(true);
+      // bip-9
+      const deployment = await fetch("/.netlify/functions/deployment");
+      const data = await deployment.json();
+      setSimplicity(data.simplicity);
+
+      // most recent 10 blocks
+      const request = await fetch(
+        "https://blockstream.info/liquid/api/blocks/tip"
+      );
+      const response = await request.json();
+      const height = response[0].height;
+      const hash = response[0].id;
+      setTip({ height, hash });
+
+      let allBlocks = keepUnique([
+        ...blocksRef.current,
+        ...response.map(processBlock),
+      ]);
+      setBlocks(allBlocks);
+
+      for (let start = height - 10; start > height - NUM_TO_SHOW; start -= 10) {
+        if (!allBlocks.map((b) => b.height).includes(start)) {
+          const blocksreq = await fetch(
+            `https://blockstream.info/liquid/api/blocks/${start}`
+          );
+          const blocksresponse = await blocksreq.json();
+          allBlocks = keepUnique([
+            ...allBlocks,
+            ...blocksresponse.map(processBlock),
+          ]);
+          setBlocks(allBlocks);
+        }
+      }
+
+      setLoading(false);
+    } catch (e) {
+      console.error(e);
+      setLoading(false);
+      setError("Something went wrong.");
+    }
+  };
+
   // init
   useEffect(() => {
-    console.log("init");
-    setLoading(true);
-    // bip-9
-    fetch("/.netlify/functions/deployment")
-      .then((r) => r.json())
-      .then((data) => setSimplicity(data.simplicity))
-      .catch((e) => console.error("Error fetching deployment:", e));
-
-    // most recent 10 blocks
-    fetch("https://blockstream.info/liquid/api/blocks/tip")
-      .then((r) => r.json())
-      .then((b) => {
-        const height = b[0].height;
-        const hash = b[0].id;
-        setTip({ height, hash });
-        const initBlocks = [...blocks, ...b.map(processBlock)];
-        setBlocks(initBlocks);
-        return { height, initBlocks };
-      })
-      .then(({ height, initBlocks }) => {
-        //
-        let allBlocks = [...initBlocks];
-        for (
-          let start = height - 10;
-          start > height - NUM_TO_SHOW;
-          start -= 10
-        ) {
-          fetch(`https://blockstream.info/liquid/api/blocks/${start}`)
-            .then((r) => r.json())
-            .then((b) => {
-              allBlocks = [...allBlocks, ...b.map(processBlock)];
-              setBlocks(allBlocks);
-            })
-            .then(() => setLoading(false));
-        }
-      })
-      .catch((e) => {
-        console.error("Error fetching deployment:", e);
-        setLoading(false);
-      });
+    async function update() {
+      await doUpdate();
+    }
+    update();
   }, []);
 
-  // // interval
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     console.log("interval check height");
-  //     checkHeight(blocks, setBlocks, setLoading);
-  //   }, 60000);
-  //   return () => clearInterval(interval);
-  // }, [blocks]);
+  // interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 0) {
+          // do update
+          async function update() {
+            await doUpdate();
+          }
+          update();
+          return UPDATE_SECS;
+        }
+        return (prev -= 1);
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const lockin_height = 3_467_520;
 
   return (
     <div>
+      <ErrorMessage message={error} />
       <Logo />
       <Intro />
-      <h2>BIP-9 signalling on The Liquid Network</h2>
+      <h4>BIP-9 signalling on The Liquid Network</h4>
       <Height tip={tip} />
       <Bip9 simplicity={simplicity} />
-      <Blocks tip={tip} blocks={blocks} loading={loading}></Blocks>
+      <Blocks blocks={blocks} loading={loading} timer={timer}></Blocks>
       <footer>
         <p>
           <a

@@ -15,6 +15,14 @@ h1 {
   color: #ea9606;
 }
 
+p {
+  font-size: 1.2rem;
+}
+
+strong {
+  color: #ea9606;
+}
+
 .block {
   display: inline-block;
   font-family: monospace;
@@ -24,9 +32,20 @@ h1 {
   font-size: 1rem;
 }
 
+.blocks {
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .blocks {
+    text-align: center;
+  }
+}
+
 .block p.height {
   margin: 10px;
   padding: 0;
+  font-size: 1rem;
 }
 
 .block p.version {

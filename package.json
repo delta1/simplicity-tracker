@@ -7,7 +7,6 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
-    "data": "node data.js",
     "preview": "vite preview"
   },
   "dependencies": {
