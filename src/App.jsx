@@ -50,6 +50,7 @@ function Blocks({ blocks, loading, timer }) {
 
 function Card({ title, value, info }) {
   const loading = <Loading size={24} show={true} />;
+  // console.log(value, typeof value);
   return (
     <div className="card">
       <p className="card-title" title={info}>
@@ -148,7 +149,7 @@ function Bip9({ simplicity }) {
     bip9: {
       status,
       since,
-      statistics: { period, elapsed, count, threshold, possible },
+      statistics: { period, elapsed, count },
     },
   } = simplicity;
   return (
@@ -177,19 +178,9 @@ function Bip9({ simplicity }) {
         info="How many blocks have elapsed in this period"
       ></Card>
       <Card
-        title="Threshold"
-        value={threshold && threshold.toLocaleString()}
-        info="How many blocks are required to signal in the period"
-      ></Card>
-      <Card
         title="Period"
         value={period && period.toLocaleString()}
         info="The number of blocks of each signalling period"
-      ></Card>
-      <Card
-        title="Possible"
-        value={possible}
-        info="Is it still possible to activate in this period?"
       ></Card>
       <Card
         title="Since"
@@ -245,7 +236,6 @@ function App() {
         period: 10080,
         elapsed: null,
         count: null,
-        threshold: 10080,
         possible: null,
       },
     },
