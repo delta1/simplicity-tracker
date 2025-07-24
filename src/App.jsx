@@ -48,7 +48,7 @@ function Blocks({ blocks, loading, timer }) {
   );
 }
 
-function Card({ title, value, info }) {
+function Card({ title, value, info = "" }) {
   const loading = <Loading size={24} show={true} />;
   // console.log(value, typeof value);
   return (
@@ -146,12 +146,16 @@ function Intro() {
 function Bip9({ simplicity }) {
   const {
     active,
-    bip9: {
-      status,
-      since,
-      statistics: { period, elapsed, count },
-    },
+    bip9: { status, since },
   } = simplicity;
+
+  const statistics = simplicity.bip9.statistics || {
+    period: null,
+    elapsed: null,
+    count: null,
+  };
+  const { period, elapsed, count } = statistics;
+
   return (
     <div>
       <p>
@@ -167,21 +171,27 @@ function Bip9({ simplicity }) {
         value={status}
         info="The BIP-9 status of the Simplicity deployment"
       ></Card>
-      <Card
-        title="Count"
-        value={count && count.toLocaleString()}
-        info="How many blocks have signalled in this period"
-      ></Card>
-      <Card
-        title="Elapsed"
-        value={elapsed && elapsed.toLocaleString()}
-        info="How many blocks have elapsed in this period"
-      ></Card>
-      <Card
-        title="Period"
-        value={period && period.toLocaleString()}
-        info="The number of blocks of each signalling period"
-      ></Card>
+      {count && (
+        <Card
+          title="Count"
+          value={count.toLocaleString()}
+          info="How many blocks have signalled in this period"
+        ></Card>
+      )}
+      {elapsed && (
+        <Card
+          title="Elapsed"
+          value={elapsed.toLocaleString()}
+          info="How many blocks have elapsed in this period"
+        ></Card>
+      )}
+      {period && (
+        <Card
+          title="Period"
+          value={period.toLocaleString()}
+          info="The number of blocks of each signalling period"
+        ></Card>
+      )}
       <Card
         title="Since"
         value={since && since.toLocaleString()}
@@ -200,7 +210,7 @@ function Height({ tip }) {
       {height && height.toLocaleString()}
     </a>
   );
-  return (
+  const before_active = (
     <>
       <p>
         Liquid chain height: {tip.height ? link : ""}
@@ -226,17 +236,13 @@ function App() {
     active: null,
     bip9: {
       bit: 21,
-      start_time: 3333333,
-      timeout: 9223372036854776000n,
-      min_activation_height: 0,
-      status: "started",
-      since: 3336480,
-      status_next: "started",
+      status: "locked_in",
+      since: 3_467_520,
+      status_next: "locked_in",
       statistics: {
-        period: 10080,
+        period: null,
         elapsed: null,
         count: null,
-        possible: null,
       },
     },
   });
