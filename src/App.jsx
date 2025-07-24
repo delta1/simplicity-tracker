@@ -213,27 +213,42 @@ function Height({ tip }) {
   const before_active = (
     <>
       <p>
+        Simplicity activation in{" "}
+        <strong>{tip.height ? blocks.toLocaleString() : "..."}</strong> blocks
+        at height <strong>{activation_height.toLocaleString()}</strong>
+      </p>
+      <p>Expected: {blocksToDateTime(blocks)}</p>
+    </>
+  );
+  const after_active = (
+    <p>
+      Simplicity has been active for <strong>{Math.abs(blocks)}</strong> blocks
+      since height <strong>{activation_height.toLocaleString()}</strong>
+    </p>
+  );
+  return (
+    <>
+      <p>
         Liquid chain height: {tip.height ? link : ""}
         <Loading size={24} show={!tip.height} />
       </p>
-      <p>
-        Simplicity activation in <strong>{blocks.toLocaleString()}</strong>{" "}
-        blocks at height <strong>{activation_height.toLocaleString()}</strong>
-      </p>
-      <p>Expected: {blocksToDateTime(blocks)}</p>
+      {blocks > 0 ? before_active : after_active}
     </>
   );
 }
 
 function App() {
-  const [tip, setTip] = useState({ height: null, hash: null });
+  const [tip, setTip] = useState({
+    height: null,
+    hash: null,
+  });
   const [blocks, setBlocks] = useState([]);
   const [timer, setTimer] = useState(UPDATE_SECS);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [simplicity, setSimplicity] = useState({
     type: "bip9",
-    active: null,
+    active: true,
     bip9: {
       bit: 21,
       status: "locked_in",
@@ -308,7 +323,7 @@ function App() {
     update();
   }, []);
 
-  // interval
+  // // interval
   useEffect(() => {
     const interval = setInterval(() => {
       setTimer((prev) => {
