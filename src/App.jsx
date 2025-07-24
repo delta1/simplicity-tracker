@@ -320,14 +320,15 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  const lockin_height = 3_467_520;
-
   return (
     <div>
       <ErrorMessage message={error} />
       <Logo />
       <Intro />
-      <h4>BIP-9 signalling on The Liquid Network</h4>
+      <h4>
+        Simplicity is <strong>{simplicity.bip9.status.toUpperCase()}</strong> on
+        The Liquid Network
+      </h4>
       <Height tip={tip} />
       <Bip9 simplicity={simplicity} />
       <Blocks blocks={blocks} loading={loading} timer={timer}></Blocks>
