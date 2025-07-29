@@ -12,7 +12,7 @@ h2 {
 }
 
 h1 {
-  color: #ea9606;
+  color: #ff9517;
 }
 
 p {
@@ -20,7 +20,7 @@ p {
 }
 
 strong {
-  color: #ea9606;
+  color: #ff9517;
 }
 
 .block {
@@ -55,8 +55,8 @@ strong {
 }
 
 .active {
-  border: 1px #ea9606 solid;
-  color: #ea9606;
+  border: 1px #ff9517 solid;
+  color: #ff9517;
   font-weight: bold;
 }
 .active:hover {
@@ -76,7 +76,7 @@ strong {
 }
 
 .card-value {
-  color: #ea9606;
+  color: #ff9517;
   font-weight: bold;
 }
 

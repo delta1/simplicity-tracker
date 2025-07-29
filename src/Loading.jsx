@@ -13,7 +13,7 @@ const Loading = ({ size = 48, show = false }) => {
         cy="25"
         r="20"
         fill="none"
-        stroke="#EA9606"
+        stroke="#ff9517"
         strokeWidth="5"
         strokeDasharray="31.4 31.4"
         strokeLinecap="round"

@@ -31,7 +31,7 @@ function CircularTimer({ timer, maxTime = 60, size = 32, strokeWidth = 2 }) {
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#ea9606"
+        stroke="#ff9517"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeDasharray={circumference}
