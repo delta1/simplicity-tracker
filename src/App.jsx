@@ -56,9 +56,7 @@ function Card({ title, value, info = "" }) {
       <p className="card-title" title={info}>
         {title}
       </p>
-      <p className="card-value">
-        {value !== null ? value.toString() : loading}
-      </p>
+      <p className="card-value">{value ? value : loading}</p>
     </div>
   );
 }
@@ -67,51 +65,6 @@ function keepUnique(blocks) {
   return Array.from(
     new Map(blocks.map((block) => [block.hash, block])).values()
   ).sort((a, b) => b.height - a.height);
-}
-
-function blocksToTimeframe(blocks) {
-  if (blocks <= 0) return "now";
-
-  const futureDate = new Date("2025-07-31T02:38:57Z");
-  const now = new Date();
-  const diffMs = futureDate.getTime() - now.getTime();
-  const minutes = diffMs / (1000 * 60);
-  const hours = minutes / 60;
-  const days = hours / 24;
-  const weeks = days / 7;
-  const months = days / 30;
-  const years = days / 365;
-
-  if (minutes < 1) return "less than a minute";
-  if (minutes < 2) return "~ a minute";
-  if (minutes < 60) return `~ ${Math.floor(minutes)} minutes`;
-  if (hours < 2) return "~ an hour";
-  if (hours < 24) return `~ ${Math.floor(hours)} hours`;
-  if (days < 2) return "~ a day";
-  if (days < 14) return `~ ${Math.floor(days)} days`;
-  if (weeks < 2) return "~ a week";
-  if (weeks < 4) return `~ ${Math.floor(weeks)} weeks`;
-  if (months < 2) return "~ a month";
-  if (months < 12) return `~ ${Math.floor(months)} months`;
-  if (years < 2) return "~ a year";
-  return `~ ${Math.floor(years)} years`;
-}
-
-function blocksToDateTime(blocks) {
-  if (blocks <= 0) return "now";
-
-  const futureDate = new Date("2025-07-31T02:38:57Z");
-
-  const dateOptions = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZoneName: "short",
-  };
-
-  return futureDate.toLocaleString(undefined, dateOptions);
 }
 
 function processBlock(block) {
@@ -127,19 +80,23 @@ function processBlock(block) {
 
 function Intro() {
   return (
-    <p>
-      <a href="https://blockstream.com/simplicity.pdf" target="_blank">
-        Simplicity
-      </a>{" "}
-      is a typed, combinator-based, functional language without loops or
-      recursion. It is formally specified, and can be statically analyzed with
-      upper bounds on computation resources prior to execution. Simplicity has
-      the desirable property of being Turing incomplete, but can express any
-      finitary function.{" "}
-      <strong>
-        Simplicity is the next generation in smart contract scripting.
-      </strong>
-    </p>
+    <div>
+      <p>
+        <a href="https://simplicity-lang.org" target="_blank">
+          Simplicity
+        </a>{" "}
+        is a typed, combinator-based, functional language without loops or
+        recursion. It is formally specified, and can be statically analyzed with
+        upper bounds on computation resources prior to execution. Simplicity has
+        the desirable property of being Turing incomplete, but can express any
+        finitary function.{" "}
+      </p>
+      <p>
+        <strong>
+          Simplicity is the next generation in smart contract scripting.
+        </strong>
+      </p>
+    </div>
   );
 }
 
@@ -154,7 +111,15 @@ function Bip9({ simplicity }) {
     elapsed: null,
     count: null,
   };
-  const { period, elapsed, count } = statistics;
+  const height = 3_477_600;
+  const link = (
+    <a
+      href="https://blockstream.info/liquid/block/0bb176dc0a6a41833d0be504a3ea89fdd7e1c01b6db8e95a1be0de6e01c3fd8b"
+      target="_blank"
+    >
+      {height.toLocaleString()}
+    </a>
+  );
 
   return (
     <div>
@@ -163,38 +128,17 @@ function Bip9({ simplicity }) {
       </p>
       <Card
         title="Active"
-        value={active}
+        value={active && active.toLocaleString()}
         info="Is Simplicity active yet?"
       ></Card>
       <Card
         title="Status"
-        value={status}
+        value={status && status.toLocaleString()}
         info="The BIP-9 status of the Simplicity deployment"
       ></Card>
-      {count && (
-        <Card
-          title="Count"
-          value={count.toLocaleString()}
-          info="How many blocks have signalled in this period"
-        ></Card>
-      )}
-      {elapsed && (
-        <Card
-          title="Elapsed"
-          value={elapsed.toLocaleString()}
-          info="How many blocks have elapsed in this period"
-        ></Card>
-      )}
-      {period && (
-        <Card
-          title="Period"
-          value={period.toLocaleString()}
-          info="The number of blocks of each signalling period"
-        ></Card>
-      )}
       <Card
         title="Since"
-        value={since && since.toLocaleString()}
+        value={link}
         info="The block height at which this status started"
       ></Card>
     </div>
@@ -210,30 +154,23 @@ function Height({ tip }) {
       {height && height.toLocaleString()}
     </a>
   );
-  const before_active = (
-    <>
-      <p>
-        Simplicity activation in{" "}
-        <strong>{tip.height ? blocks.toLocaleString() : "..."}</strong> blocks
-        at height <strong>{activation_height.toLocaleString()}</strong>
-      </p>
-      <p>Expected: {blocksToDateTime(blocks)}</p>
-    </>
-  );
-  const after_active = (
-    <p>
-      Simplicity has been active for <strong>{Math.abs(blocks)}</strong> blocks
-      since height <strong>{activation_height.toLocaleString()}</strong>
-    </p>
-  );
   return (
-    <>
+    <div>
       <p>
         Liquid chain height: {tip.height ? link : ""}
         <Loading size={24} show={!tip.height} />
       </p>
-      {blocks > 0 ? before_active : after_active}
-    </>
+      <p>
+        Simplicity has been active for <strong>{Math.abs(blocks)}</strong>{" "}
+        blocks since height{" "}
+        <a
+          href="https://blockstream.info/liquid/block/0bb176dc0a6a41833d0be504a3ea89fdd7e1c01b6db8e95a1be0de6e01c3fd8b"
+          target="_blank"
+        >
+          {activation_height.toLocaleString()}
+        </a>
+      </p>
+    </div>
   );
 }
 
@@ -246,21 +183,19 @@ function App() {
   const [timer, setTimer] = useState(UPDATE_SECS);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [simplicity, setSimplicity] = useState({
+  const simplicity = {
     type: "bip9",
+    height: 3477600,
     active: true,
     bip9: {
-      bit: 21,
-      status: "locked_in",
-      since: 3_467_520,
-      status_next: "locked_in",
-      statistics: {
-        period: null,
-        elapsed: null,
-        count: null,
-      },
+      start_time: 3333333,
+      timeout: 9223372036854776000n,
+      min_activation_height: 0,
+      status: "active",
+      since: 3477600,
+      status_next: "active",
     },
-  });
+  };
 
   const blocksRef = useRef(blocks);
 
@@ -273,10 +208,6 @@ function App() {
     try {
       console.log("updating");
       setLoading(true);
-      // bip-9
-      const deployment = await fetch("/.netlify/functions/deployment");
-      const data = await deployment.json();
-      setSimplicity(data.simplicity);
 
       // most recent 10 blocks
       const request = await fetch(
@@ -354,15 +285,35 @@ function App() {
       <Bip9 simplicity={simplicity} />
       <Blocks blocks={blocks} loading={loading} timer={timer}></Blocks>
       <footer>
-        <p>
-          <a
-            href="https://github.com/delta1/simplicity-tracker"
-            target="_blank"
-          >
-            source code
-          </a>
-        </p>
+        <ul>
+          <li>
+            <a href="https://simplicity-lang.org" target="_blank">
+              simplicity-lang.org
+            </a>
+          </li>
+          <li>
+            <a href="https://blockstream.com/simplicity.pdf" target="_blank">
+              simplicity.pdf
+            </a>
+          </li>
+          <li>
+            <a href="https://research.blockstream.com" target="_blank">
+              research.blockstream.com
+            </a>
+          </li>
+          <li>
+            <a href="https://blockstream.com" target="_blank">
+              blockstream.com
+            </a>
+          </li>
+        </ul>
       </footer>
+      <p className="source">
+        source code @&nbsp;
+        <a href="https://github.com/delta1/simplicity-tracker" target="_blank">
+          delta1/simplicity-tracker
+        </a>
+      </p>
     </div>
   );
 }

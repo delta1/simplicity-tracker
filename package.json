@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "netlify": "netlify dev",
+    "start": "vite",
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",

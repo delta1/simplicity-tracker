@@ -36,12 +36,6 @@ strong {
   text-align: left;
 }
 
-@media (max-width: 768px) {
-  .blocks {
-    text-align: center;
-  }
-}
-
 .block p.height {
   margin: 10px;
   padding: 0;
@@ -59,9 +53,11 @@ strong {
   color: #ff9517;
   font-weight: bold;
 }
-.active:hover {
-  color: #ffd690;
-  border: 1px #ffd690 solid;
+
+.block:hover {
+  border: 1px #ff9517 solid;
+  color: #ff9517;
+  font-weight: bold;
 }
 
 .card {
@@ -80,7 +76,58 @@ strong {
   font-weight: bold;
 }
 
-.logo > svg {
-  max-height: 130px;
+.logo svg {
+  max-height: 100px;
   margin: 40px 0;
+}
+
+footer ul {
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  padding: 0;
+}
+
+footer a {
+  font-size: 1.1rem;
+  font-weight: normal;
+  color: #ccc;
+}
+
+footer a:hover {
+  color: #ff9517;
+  font-weight: bold;
+}
+
+.source {
+  font-size: 0.8rem;
+  margin-top: 3rem;
+}
+
+.source a {
+  color: #ccc;
+  font-weight: normal;
+}
+
+.source a:hover {
+  color: #ccc;
+  font-weight: bold;
+  color: #ff9517;
+}
+
+@media (max-width: 768px) {
+  .blocks {
+    text-align: center;
+  }
+
+  .card {
+    width: 100%;
+  }
+
+  footer ul {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
 }
